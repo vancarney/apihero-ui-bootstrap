@@ -8,6 +8,7 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
+  	"bootstrap":"^3.3.5",
     "apihero-ui":"git+https://github.com/vancarney/backbone-ui#apihero-ui"
   },
   "devDependencies": {

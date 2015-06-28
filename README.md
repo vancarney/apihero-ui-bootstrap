@@ -1,2 +1,2 @@
-# apihero-ui-project-stub
-Stub Repo to Fork/Clone for creating new ApiHero based UI integrations
+# apihero-ui-bootstrap
+Bootstrap Instration for ApiHero UI

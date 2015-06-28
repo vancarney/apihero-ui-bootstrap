@@ -1,0 +1,2 @@
+ApiHeroUI ?= {}
+ApiHeroUI.Bootstrap = {}
