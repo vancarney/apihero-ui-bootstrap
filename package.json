@@ -23,7 +23,8 @@
   	"apihero-ui":"git+https://github.com/vancarney/backbone-ui#apihero-ui",
   	"api-hero":"git+https://github.com/vancarney/rikki-tikki#api-hero",
     "bower": "latest",
-    "docco": "latest"
+    "docco": "latest",
+    "autoprefixer-core":"latest"
   },
   "scripts":{
     "test":""
