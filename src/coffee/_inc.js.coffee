@@ -1,2 +1,2 @@
-ApiHeroUI = {} unless ApiHeroUI and typof ApiHeroUI is 'object'
+ApiHeroUI = {} unless ApiHeroUI and typeof ApiHeroUI is 'object'
 ApiHeroUI.Bootstrap = {}
