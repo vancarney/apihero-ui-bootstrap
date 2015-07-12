@@ -722,7 +722,65 @@ ApiHeroUI.core.View = (function(superClass) {
 (=) require_tree ./core
  */
 ;
-if (!(ApiHeroUI && typeof ApiHeroUI === 'object')) {
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ApiHeroUI.components.FormView = (function(superClass) {
+  extend(FormView, superClass);
+
+  function FormView() {
+    return FormView.__super__.constructor.apply(this, arguments);
+  }
+
+  FormView.prototype.events = {
+    "change input": function(evt) {
+      var t;
+      return this.model.set(((t = $(evt.target)).attr('name')).replace(/^reg_+/, ''), t.val(), {
+        validate: true
+      });
+    },
+    "click button[name=cancel]": function() {
+      this.model.clear();
+      this.$('input').val(null);
+      _.extend(this.model.attributes, _.clone(this.model.defaults));
+      return this.trigger('cancelled');
+    },
+    "click button[name=submit]": function() {
+      return this.model.save(null, {
+        success: (function(_this) {
+          return function(m, r, o) {
+            return _this.trigger('submit-success');
+          };
+        })(this),
+        error: (function(_this) {
+          return function() {
+            return _this.trigger('submit-failure', {
+              message: 'unable to complete form submission'
+            });
+          };
+        })(this)
+      });
+    }
+  };
+
+  FormView.prototype.init = function(o) {
+    return this.model = new this.modelClass().on("change reset", ((function(_this) {
+      return function() {
+        _this.trigger('changing');
+        return _this.model.validate();
+      };
+    })(this)), this).on('invalid', ((function(_this) {
+      return function(model, e) {
+        return _this.trigger('invalid', {
+          message: e
+        });
+      };
+    })(this)), this);
+  };
+
+  return FormView;
+
+})(ApiHero.core.View);if (!(ApiHeroUI && typeof ApiHeroUI === 'object')) {
   global.ApiHeroUI = {};
 }
 
@@ -960,6 +1018,7 @@ ApiHeroUI.Bootstrap.View = (function(superClass) {
   use mincer compiler directives below to include dependencies
 (=) require bootstrap/js/tooltip
 (=) require apihero-ui/coffee/core
+(=) require apihero-ui/coffee/components/form
 (=) require_tree .
  */
 ;
