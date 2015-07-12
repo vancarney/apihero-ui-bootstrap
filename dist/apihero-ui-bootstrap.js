@@ -863,7 +863,8 @@ ApiHeroUI.Bootstrap.components.LoginForm = (function(superClass) {
         }
       }
     };
-    return _.extend(this.events, fieldHandlers);
+    _.extend(this.events, fieldHandlers);
+    return this.delegateEvents();
   };
 
   return LoginForm;
@@ -878,29 +879,35 @@ ApiHeroUI.Bootstrap.controls.AlertView = (function(superClass) {
     return AlertView.__super__.constructor.apply(this, arguments);
   }
 
-  AlertView.prototype.setMessage = function(mssg, kind) {
-    if (kind == null) {
-      kind = "danger";
+  AlertView.prototype.events = {
+    "click button.close": function(evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+      this.reset();
+      return false;
     }
+  };
+
+  AlertView.prototype.setMessage = function(mssg, kind) {
     return this.model.set({
       message: mssg,
-      kind: kind
+      kind: kind || this.model.defaults.kind || 'danger'
     });
   };
 
   AlertView.prototype.reset = function() {
-    this.model.set('message', null);
-    return this.$('.alert').addClass('hidden').text('');
+    return this.model.set({
+      message: null
+    });
   };
 
   AlertView.prototype.render = function() {
     var kind, mssg;
-    kind = this.model.attributes.kind || this.model.defaults.kind || 'danger';
-    if ((mssg = this.model.attributes.mssg) === null || mssg === '') {
-      return this.$(".alert-" + kind).addClass('hidden').text('');
-    } else {
-      return this.$(".alert-" + kind).text(mssg).removeClass('hidden');
+    kind = this.model.getKind();
+    if ((mssg = this.model.attributes.message) === null || mssg === '' || mssg === void 0) {
+      return this.$el.removeClass("alert-" + kind).addClass('hidden').find('.alert-text').text('');
     }
+    return this.$el.addClass("alert-" + kind).find('.alert-text').text(mssg).end().removeClass('hidden');
   };
 
   AlertView.prototype.init = function() {
@@ -909,10 +916,30 @@ ApiHeroUI.Bootstrap.controls.AlertView = (function(superClass) {
       defaults: {
         kind: "danger",
         message: ""
+      },
+      getKind: function() {
+        return this.attributes.kind || this.model.defaults.kind || 'danger';
+      },
+      validate: function(o) {
+        var kind, mssg;
+        mssg = o.message || this.attributes.message;
+        kind = o.kind || this.attributes.kind;
+        if (typeof mssg !== 'string') {
+          return 'Alert Message must be string';
+        }
+        if (typeof kind !== 'string') {
+          return 'Alert Kind must be string';
+        }
+        if (!(0 <= ['danger', 'info', 'warn', 'success'].indexOf(kind))) {
+          return "Alert Kind must be one of: " + (kinds.join(','));
+        }
       }
     });
     this.model = new model_class;
-    return this.model.on('change', this.render, this);
+    this.model.on('change', this.render, this);
+    return this.model.on('invalid', function() {
+      return console.log(this.validationError);
+    });
   };
 
   return AlertView;

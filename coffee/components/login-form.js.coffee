@@ -7,3 +7,4 @@ class ApiHeroUI.Bootstrap.components.LoginForm extends ApiHeroUI.Bootstrap.compo
       "change input[name=reg_password]":->
         @$('input[name=password_confirm]').removeClass( 'hidden' ).focus() if @model.isValid()
     _.extend @events, fieldHandlers
+    @delegateEvents()
