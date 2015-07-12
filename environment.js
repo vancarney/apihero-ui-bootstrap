@@ -41,9 +41,9 @@ var environment = module.exports = new Mincer.Environment('./');
 // environment.appendPath('bower_components/apihero-ui/assets/less');
 // environment.appendPath('bower_components/apihero-ui/assets/jade');
 environment.appendPath('bower_components');
-environment.appendPath('src/coffee');
-environment.appendPath('src/less');
-environment.appendPath('src/jade');
+environment.appendPath('coffee');
+environment.appendPath('less');
+environment.appendPath('jade');
 environment.appendPath('vendor');
 
 

@@ -30,7 +30,7 @@ var manifest = new Mincer.Manifest(environment, './dist');
 
 try {
   var assetsData = manifest.compile([ 'application.js', 'application.css' ], {
-    compress: true,
+    compress: false,
     sourceMaps: true,
     embedMappingComments: true
   });

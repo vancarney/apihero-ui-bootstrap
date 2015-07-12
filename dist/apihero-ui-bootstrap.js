@@ -724,11 +724,135 @@ ApiHeroUI.core.View = (function(superClass) {
 ;
 var ApiHeroUI;
 
-if (!(ApiHeroUI && typof(ApiHeroUI === 'object'))) {
+if (!(ApiHeroUI && typeof ApiHeroUI === 'object')) {
   ApiHeroUI = {};
 }
 
 ApiHeroUI.Bootstrap = {};var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ApiHeroUI.Bootstrap.components.FormView = (function(superClass) {
+  extend(FormView, superClass);
+
+  function FormView() {
+    return FormView.__super__.constructor.apply(this, arguments);
+  }
+
+  FormView.prototype.alertDelegate = null;
+
+  FormView.prototype.failureMessage = 'form submission failed';
+
+  FormView.prototype.successMessage = 'form submission was succesful';
+
+  FormView.prototype.init = function(o) {
+    FormView.__super__.init.call(this, o);
+    if (o.hasOwnProperty('alertDelegate')) {
+      this.alertDelegate = o.alertDelegate;
+    }
+    this.on("changing", ((function(_this) {
+      return function() {
+        var ref;
+        return (ref = _this.alertDelegate) != null ? ref.reset() : void 0;
+      };
+    })(this)), this);
+    this.on('invalid', ((function(_this) {
+      return function(model, e) {
+        var ref;
+        return (ref = _this.alertDelegate) != null ? ref.setMessage(e, 'danger') : void 0;
+      };
+    })(this)), this);
+    this.on('submit-failure', ((function(_this) {
+      return function(e) {
+        var ref;
+        return (ref = _this.alertDelegate) != null ? ref.setMessage(_this.failureMessage, 'danger') : void 0;
+      };
+    })(this)), this);
+    return this.on('submit-success', ((function(_this) {
+      return function() {
+        var ref;
+        return (ref = _this.alertDelegate) != null ? ref.setMessage(_this.successMessage, 'success') : void 0;
+      };
+    })(this)), this);
+  };
+
+  return FormView;
+
+})(ApiHeroUI.components.FormView);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ApiHeroUI.Bootstrap.components.LoginForm = (function(superClass) {
+  extend(LoginForm, superClass);
+
+  function LoginForm() {
+    return LoginForm.__super__.constructor.apply(this, arguments);
+  }
+
+  LoginForm.prototype.init = function(o) {
+    var fieldHandlers;
+    LoginForm.__super__.init.call(this, o);
+    fieldHandlers = {
+      "change input[name=reg_email]": function() {
+        if (this.model.isValid()) {
+          return this.$('input[name=email_confirm]').removeClass('hidden').focus();
+        }
+      },
+      "change input[name=reg_password]": function() {
+        if (this.model.isValid()) {
+          return this.$('input[name=password_confirm]').removeClass('hidden').focus();
+        }
+      }
+    };
+    return _.extend(this.events, fieldHandlers);
+  };
+
+  return LoginForm;
+
+})(ApiHeroUI.Bootstrap.components.FormView);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ApiHeroUI.Bootstrap.AlertView = (function(superClass) {
+  extend(AlertView, superClass);
+
+  function AlertView() {
+    return AlertView.__super__.constructor.apply(this, arguments);
+  }
+
+  AlertView.prototype.setMessage = function(mssg, kind) {
+    if (kind == null) {
+      kind = "danger";
+    }
+    return this.model.set({
+      message: mssg,
+      kind: kind
+    });
+  };
+
+  AlertView.prototype.reset = function() {
+    this.model.set('message', null);
+    return this.$('.alert').addClass('hidden').text('');
+  };
+
+  AlertView.prototype.render = function() {
+    if (mssg === null || mssg === '') {
+      return this.$(".alert-" + kind).addClass('hidden').text('');
+    } else {
+      return this.$(".alert-" + kind).text(mssg).removeClass('hidden');
+    }
+  };
+
+  AlertView.prototype.init = function() {
+    this.model = new (Backbone.Model["extends"]({
+      defaults: {
+        kind: "danger",
+        message: ""
+      }
+    }));
+    return this.model.on('change', this.render, this);
+  };
+
+  return AlertView;
+
+})(ApiHeroUI.core.View);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 ApiHeroUI.Bootstrap.Tooltip = (function(superClass) {
