@@ -1,2 +1,4 @@
 ApiHeroUI = {} unless ApiHeroUI and typeof ApiHeroUI is 'object'
-ApiHeroUI.Bootstrap = {}
+ApiHeroUI.Bootstrap = 
+  controls:{}
+  components:{}
