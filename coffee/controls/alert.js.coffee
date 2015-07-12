@@ -1,4 +1,4 @@
-class ApiHeroUI.Bootstrap.AlertView extends ApiHeroUI.core.View
+class ApiHeroUI.Bootstrap.controls.AlertView extends ApiHeroUI.core.View
   setMessage:(mssg, kind="danger")->
     @model.set {message: mssg, kind:kind}
   reset:->
