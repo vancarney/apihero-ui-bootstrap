@@ -10,9 +10,9 @@ class ApiHeroUI.Bootstrap.controls.AlertView extends ApiHeroUI.core.View
     else
       @$(".alert-#{kind}").text( mssg ).removeClass 'hidden'
   init:->
-    @model = new (Backbone.Model.extends
+    model_class = Backbone.Model.extend
       defaults:
         kind:"danger"
         message:""
-    )
+    @model = new model_class
     @model.on 'change', @render, @

@@ -902,12 +902,14 @@ ApiHeroUI.Bootstrap.controls.AlertView = (function(superClass) {
   };
 
   AlertView.prototype.init = function() {
-    this.model = new (Backbone.Model["extends"]({
+    var model_class;
+    model_class = Backbone.Model.extend({
       defaults: {
         kind: "danger",
         message: ""
       }
-    }));
+    });
+    this.model = new model_class;
     return this.model.on('change', this.render, this);
   };
 
