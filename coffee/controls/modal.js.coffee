@@ -31,6 +31,6 @@ class ApiHeroUI.Bootstrap.controls.Modal extends ApiHeroUI.core.View
     @$el.modal 'handleUpdate'
   init:(o={})->
     # invokes `init` on `super`
-    Modal.__super__.init.call @, o
+    Modal.__super__.initialize.call @, o
     # sets modal options if any passed
     @$el.modal _.pick o, ['backdrop','keyboard','show','remote']
