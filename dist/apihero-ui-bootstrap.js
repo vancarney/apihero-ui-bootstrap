@@ -947,6 +947,60 @@ ApiHeroUI.Bootstrap.controls.AlertView = (function(superClass) {
 })(ApiHeroUI.core.View);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
+ApiHeroUI.Bootstrap.controls.Modal = (function(superClass) {
+  extend(Modal, superClass);
+
+  function Modal() {
+    return Modal.__super__.constructor.apply(this, arguments);
+  }
+
+  Modal.prototype.events = {
+    'hide.bs.modal': function() {
+      return this.trigger('hiding', this.$el);
+    },
+    'hidden.bs.modal': function() {
+      return this.trigger('hidden', this.$el);
+    },
+    'show.bs.modal': function() {
+      return this.trigger('showing', this.$el);
+    },
+    'shown.bs.modal': function() {
+      return this.trigger('shown', this.$el);
+    },
+    'loaded.bs.modal': function() {
+      return this.trigger('loaded', this.$el);
+    }
+  };
+
+  Modal.prototype.show = function() {
+    return this.$el.modal('show');
+  };
+
+  Modal.prototype.hide = function() {
+    return this.$el.modal('hide');
+  };
+
+  Modal.prototype.toggle = function() {
+    return this.$el.modal('toggle');
+  };
+
+  Modal.prototype.handleUpdate = function() {
+    return this.$el.modal('handleUpdate');
+  };
+
+  Modal.prototype.init = function(o) {
+    if (o == null) {
+      o = {};
+    }
+    Modal.__super__.init.call(this, o);
+    return this.$el.modal(_.pick(o, ['backdrop', 'keyboard', 'show', 'remote']));
+  };
+
+  return Modal;
+
+})(ApiHeroUI.core.View);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
 ApiHeroUI.Bootstrap.Tooltip = (function(superClass) {
   extend(Tooltip, superClass);
 
