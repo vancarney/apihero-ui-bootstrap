@@ -894,7 +894,8 @@ ApiHeroUI.Bootstrap.controls.AlertView = (function(superClass) {
   };
 
   AlertView.prototype.render = function() {
-    if (mssg === null || mssg === '') {
+    var mssg;
+    if ((mssg = this.model.attributes.mssg) === null || mssg === '') {
       return this.$(".alert-" + kind).addClass('hidden').text('');
     } else {
       return this.$(".alert-" + kind).text(mssg).removeClass('hidden');

@@ -5,7 +5,7 @@ class ApiHeroUI.Bootstrap.controls.AlertView extends ApiHeroUI.core.View
     @model.set 'message', null
     @$('.alert').addClass( 'hidden' ).text ''
   render:->
-    if mssg is null or mssg is ''
+    if (mssg = @model.attributes.mssg) is null or mssg is ''
       @$(".alert-#{kind}").addClass( 'hidden' ).text ''
     else
       @$(".alert-#{kind}").text( mssg ).removeClass 'hidden'
