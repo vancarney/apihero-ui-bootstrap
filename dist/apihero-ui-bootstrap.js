@@ -722,17 +722,17 @@ ApiHeroUI.core.View = (function(superClass) {
 (=) require_tree ./core
  */
 ;
-var ApiHeroUI;
-
 if (!(ApiHeroUI && typeof ApiHeroUI === 'object')) {
-  ApiHeroUI = {};
+  global.ApiHeroUI = {};
 }
 
-ApiHeroUI.Bootstrap = {
+global.ApiHeroUI.Bootstrap = {
   controls: {},
   components: {}
 };var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
+
+console.log(ApiHeroUI);
 
 ApiHeroUI.Bootstrap.components.FormView = (function(superClass) {
   extend(FormView, superClass);
