@@ -990,9 +990,10 @@ ApiHeroUI.Bootstrap.controls.Modal = (function(superClass) {
 
   Modal.prototype.init = function(o) {
     if (o == null) {
-      o = {};
+      o = {
+        show: false
+      };
     }
-    Modal.__super__.initialize.call(this, o);
     return this.$el.modal(_.pick(o, ['backdrop', 'keyboard', 'show', 'remote']));
   };
 
