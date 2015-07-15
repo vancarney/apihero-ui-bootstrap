@@ -9,6 +9,7 @@
   "private": false,
   "dependencies": {
   	"bootstrap":"^3.3.5",
+  	"bootstrap-3-typeahead":"^3.1.1",
     "apihero-ui":"git+https://github.com/vancarney/backbone-ui#apihero-ui"
   },
   "devDependencies": {
