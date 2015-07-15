@@ -1060,8 +1060,6 @@ global.ApiHeroUI.Bootstrap = {
 };var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-console.log(ApiHeroUI);
-
 ApiHeroUI.Bootstrap.components.FormView = (function(superClass) {
   extend(FormView, superClass);
 
@@ -1372,6 +1370,35 @@ ApiHeroUI.Bootstrap.controls.TypeAhead = (function(superClass) {
   return TypeAhead;
 
 })(ApiHeroUI.Bootstrap.core.View);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ApiHeroUI.Bootstrap.search.FilterElement = (function(superClass) {
+  extend(FilterElement, superClass);
+
+  function FilterElement() {
+    return FilterElement.__super__.constructor.apply(this, arguments);
+  }
+
+  return FilterElement;
+
+})(ApiHeroUI.search.FilterElement);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ApiHeroUI.Bootstrap.search.View = (function(superClass) {
+  extend(View, superClass);
+
+  function View() {
+    return View.__super__.constructor.apply(this, arguments);
+  }
+
+  View.prototype.init = function(o) {
+    subviews['.search-filter'] = ApiHeroUI.Bootstrap.search.FilterElement;
+    return View.__super__.init.apply(this, arguments);
+  };
+
+  return View;
+
+})(ApiHeroUI.search.View);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 ApiHeroUI.Bootstrap.View = (function(superClass) {

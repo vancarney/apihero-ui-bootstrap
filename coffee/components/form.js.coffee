@@ -1,4 +1,3 @@
-console.log ApiHeroUI
 class ApiHeroUI.Bootstrap.components.FormView extends ApiHeroUI.components.FormView
   alertDelegate:null
   failureMessage:'form submission failed'
