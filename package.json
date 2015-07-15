@@ -16,10 +16,12 @@
     "mincer":"^1.3.0"
   },
   "devDependencies": {
+  	"async":"^1.3.0",
 	"mocha": "^2.2.5",
     "chai": "^3.0.0",
   	"supertest": "^1.0.1",
   	"loopback-testing": "^1.1.0",
+  	"mocha-phantomjs":"^3.5.3",
   	"apihero-ui":"git+https://github.com/vancarney/backbone-ui#apihero-ui",
   	"api-hero":"git+https://github.com/vancarney/rikki-tikki#api-hero",
     "bower": "latest",
