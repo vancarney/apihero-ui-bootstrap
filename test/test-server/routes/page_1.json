@@ -1,0 +1,8 @@
+{
+  "name": "page_1",
+  "file_type": "jade",
+  "query_method": "findOne",
+  "route_file": "/Users/van/Documents/workspace/apihero-ui-bootstrap/test/test-server/routes/page_1",
+  "template_file": "page_1",
+  "route": "/page_1"
+}

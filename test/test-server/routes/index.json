@@ -1,0 +1,8 @@
+{
+  "name": "index",
+  "file_type": "jade",
+  "query_method": "find",
+  "route_file": "/Users/van/Documents/workspace/apihero-ui-bootstrap/test/test-server/routes/index",
+  "template_file": "index",
+  "route": "/"
+}

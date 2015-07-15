@@ -1,0 +1,20 @@
+nav.navbar.navbar-default#topbar(role="navigation")
+  .navbar-header
+    button.navbar-toggle(type="button", data-toggle="collapse", data-target="#site-navbar-collapse", aria-expanded="false")
+      span.sr-only Toggle navigation
+      span.icon-bar
+      span.icon-bar
+      span.icon-bar
+    a.navbar-brand(href="/index")
+      img(src="//placehold.it/40x40")
+  #site-navbar-collapse.collapse.navbar-collapse
+    .container-fluid
+      ul.nav.navbar-nav
+        li
+          a(href="/page_1") Page              
+      form.navbar-form.navbar-left(role="search")
+        .form-group
+          input.form-control.search-submit(type="text", placeholder="Search...")  
+      ul.nav.navbar-nav.navbar-right
+        li
+          a.button.connect-button(href="#", data-toggle="modal" data-target="#login") Login

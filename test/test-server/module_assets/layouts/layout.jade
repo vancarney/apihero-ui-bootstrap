@@ -1,0 +1,27 @@
+unless isXHR
+  doctype html
+  html(lang="en")
+    head
+      meta(charset="utf-8")
+      meta(http-equiv="X-UA-Compatible", content="IE=edge,chrome=1")
+      title #{title}
+      each metatag in locals.meta
+        meta(name=metatag.name, content=metatag.content)
+      //link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Open+Sans:700,300,800,400")
+      if phonegap
+        link(rel="stylesheet", href="./application.css")
+      else
+        link(rel="stylesheet", href="assets/application.css")
+    body
+      block topnav
+      #main.container-fluid
+        block yield
+      block footer
+      block modals
+      if phonegap
+        script(type="text/javascript", src="./cordova.js")
+        script(type="text/javascript", src="./application.js")
+      else
+        script(src="assets/application.js")
+else
+  block yield

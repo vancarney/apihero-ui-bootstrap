@@ -1,0 +1,19 @@
+{
+  "name": "apihero-ui-project-stub",
+  "version": "0.0.1-alpha",
+  "authors": [
+    "Van Carney <carney.van@gmail.com>"
+  ],
+  "main": "public/js/app.js",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+  	"bootstrap":"^3.3.5",
+  	"bootstrap3-typeahead":"^3.1.1",
+    "apihero-ui":"git+https://github.com/vancarney/backbone-ui#apihero-ui"
+  },
+  "devDependencies": {
+
+  }
+
+}

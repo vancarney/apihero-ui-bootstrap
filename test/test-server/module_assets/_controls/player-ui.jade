@@ -1,0 +1,32 @@
+#player_controls.row
+  fieldset#playback.col-lg-2.col-md-2.col-sm-2
+    button#trackFREV.buttonbar-item.frev
+    button#trackPPAUSE.buttonbar-item.ppause
+    button#trackFADV.buttonbar-item.fadv
+  #trackHUD.col-lg-8.col-md-8.col-sm-8.col-xs-12
+    #meta.container
+      img#player_tmb(width=>40, height=>40, alt=>"")
+      .text
+        .artist
+        .track
+      span.time 00:00
+      #trackbar
+        .bar
+        .scrubber
+      #playlist_container
+        .playlist_controls
+        -# button(class=>"ignore") New Playlist
+        -# button(class=>"ignore") Delete Playlist
+      .views_container
+        .slider
+          .lists_container
+          ol#playLists.playable
+          .tracks_container
+          .tracklist-container
+  #ctrl_buttons.col-lg-2.col-md-2.col-sm-2
+    button#playlist_tog
+    button#make_favorite
+    button#track_dislike
+    button#track_share
+    button#follow_tog
+    #player
