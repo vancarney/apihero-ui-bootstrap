@@ -511,7 +511,8 @@
     return this
   }
 
-}(jQuery);var ApiHeroUI, Backbone, _, global;
+}(jQuery);'use strict';
+var Backbone, _, global;
 
 global = typeof exports !== "undefined" && exports !== null ? exports : window;
 
@@ -519,11 +520,14 @@ _ = (typeof exports !== 'undefined' ? require('underscore') : global)._;
 
 Backbone = typeof exports !== 'undefined' ? require('backbone') : global.Backbone;
 
-ApiHeroUI = {
+global.ApiHeroUI = {
   core: {},
+  components: {},
   controls: {},
   interactions: {},
+  plugins: {},
   utils: {},
+  search: {},
   routes: {}
 };$.fn.draggable = function(opt) {
   var $el;
@@ -559,6 +563,103 @@ ApiHeroUI = {
         }
       };
     })(this));
+  });
+};ApiHeroUI.utils.getFunctionName = function(fun) {
+  var n;
+  if ((n = fun.toString().match(/function+\s{1,}([a-zA-Z_0-9]*)/)) != null) {
+    return n[1];
+  } else {
+    return null;
+  }
+};
+
+ApiHeroUI.utils.getDiffs = function(obj1, obj2) {
+  if ((obj1 != null) && (obj2 != null)) {
+    return _.reject(_.pairs(obj1), (function(_this) {
+      return function(v) {
+        return obj2[v[0]] === v[1];
+      };
+    })(this));
+  } else {
+    return null;
+  }
+};
+
+ApiHeroUI.utils.getTypeOf = function(obj) {
+  return Object.prototype.toString.call(obj).slice(8, -1);
+};
+
+ApiHeroUI.utils.isOfType = function(value, kind) {
+  return (this.getTypeOf(value)) === (ApiHeroUI.utils.getFunctionName(kind)) || value instanceof kind;
+};
+
+ApiHeroUI.utils.querify = function(array) {
+  if (typeof array !== 'object') {
+    return null;
+  }
+  if (!_.isArray(array)) {
+    return ApiHeroUI.utils.objectToQuery(array);
+  }
+  return "" + ((_.map(array, function(v) {
+    return v.join('=');
+  })).join('&'));
+};
+
+ApiHeroUI.utils.objectToQuery = function(object) {
+  var i, j, keys, pairs, ref;
+  if (object == null) {
+    object = {};
+  }
+  if (typeof array !== 'object') {
+    return null;
+  }
+  pairs = [];
+  keys = Object.keys(object);
+  for (i = j = 0, ref = keys.length - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
+    pairs[i] = [keys[i], object[keys[i]]];
+  }
+  return (pairs.map((function(_this) {
+    return function(v, k) {
+      return v.join('=');
+    };
+  })(this))).join('&');
+};
+
+ApiHeroUI.utils.queryToObject = function(string) {
+  var o;
+  if (typeof string !== 'string') {
+    return null;
+  }
+  o = {};
+  decodeURIComponent(string).replace('?', '').split('&').forEach((function(_this) {
+    return function(v, k) {
+      var p;
+      if ((p = v.split('=')).length === 2) {
+        return o[p[0]] = p[1];
+      }
+    };
+  })(this));
+  return o;
+};
+
+ApiHeroUI.utils.getPackageClass = function(_path) {
+  var j, len, nsPath, pkg, ref;
+  if (!((_path != null) && typeof _path === 'string')) {
+    return null;
+  }
+  pkg = window;
+  ref = _path.split('.');
+  for (j = 0, len = ref.length; j < len; j++) {
+    nsPath = ref[j];
+    pkg = pkg[nsPath];
+  }
+  return pkg;
+};
+
+ApiHeroUI.utils.mkGUID = function() {
+  return 'xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r;
+    return (r = Math.random() * 16 | 0).toString(16);
   });
 };var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
@@ -604,10 +705,20 @@ ApiHeroUI.core.View = (function(superClass) {
             clazz = view;
           }
           return _.each(_this.$el.find(selector), function(v, k) {
-            return _this.__children.push(_this[selector] = new clazz(_.extend(params, {
-              el: v,
-              __parent: _this
-            })));
+            if (_.isArray(v)) {
+              _this[selector] = _.map(v, function(vEl) {
+                return new clazz(_.extend(_.clone(params), {
+                  el: vEl,
+                  __parent: _this
+                }));
+              });
+            } else {
+              _this[selector] = new clazz(_.extend(params, {
+                el: v,
+                __parent: _this
+              }));
+            }
+            return _this.__children.push(_this[selector]);
           });
         };
       })(this)));
@@ -633,7 +744,25 @@ ApiHeroUI.core.View = (function(superClass) {
     return this;
   };
 
+  View.prototype.__formatter = null;
+
+  View.prototype.setTextFormatter = function(fmt) {
+    return this.__formatter = fmt;
+  };
+
+  View.prototype.getText = function() {
+    return this.$el.text();
+  };
+
+  View.prototype.setText = function(v) {
+    this.$el.text((typeof this.__formatter === "function" ? this.__formatter(v) : void 0) || v);
+    return this;
+  };
+
   View.prototype.setCollection = function(c) {
+    if (!((c != null) && c instanceof Backbone.Collection)) {
+      return this;
+    }
     if (this.collection) {
       this.collection.off("change reset add remove");
     }
@@ -729,22 +858,33 @@ ApiHeroUI.core.View = (function(superClass) {
   };
 
   View.prototype.initialize = function(o) {
-    var ref, ref1;
+    var dataClass, pkg, ref, ref1;
+    if (o == null) {
+      o = {};
+    }
+    if (o.hasOwnProperty('textFormatter')) {
+      this.setTextFormatter(o.textFormatter);
+    }
+    pkg = (dataClass = this.$el.attr('data-source')) != null ? ApiHeroUI.utils.getPackageClass(dataClass) : null;
+    if (pkg != null) {
+      if (pkg instanceof Backbone.Collection) {
+        this.collection = pkg;
+      }
+      if (pkg instanceof Backbone.Model) {
+        this.model = pkg;
+      }
+    }
     if ((ref = this.model) != null) {
       ref.on("change reset", this.render, this);
     }
     if ((ref1 = this.collection) != null) {
       ref1.on("change reset add remove", this.render, this);
     }
-    if ((o != null) && o.__parent) {
+    if (o.hasOwnProperty('__parent')) {
       this.__parent = o.__parent;
     }
-    if (typeof this.init === 'function') {
-      if (o != null) {
-        this.init(o);
-      } else {
-        this.init();
-      }
+    if ((this.init != null) && typeof this.init === 'function') {
+      this.init(o);
     }
     return this.render();
   };
@@ -752,6 +892,114 @@ ApiHeroUI.core.View = (function(superClass) {
   return View;
 
 })(Backbone.View);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ApiHeroUI.core.Application = (function(superClass) {
+  extend(Application, superClass);
+
+  function Application() {
+    return Application.__super__.constructor.apply(this, arguments);
+  }
+
+  Application.prototype.el = "body";
+
+  Application.prototype.events = {
+    "click a[href^='/']": function(evt) {
+      var href, url;
+      href = $(evt.currentTarget).attr('href');
+      if (!(evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey)) {
+        evt.preventDefault();
+      }
+      url = href.replace(/^\//, '').replace('\#\!\/', '');
+      this.router.navigate(url, {
+        trigger: true
+      });
+      return false;
+    }
+  };
+
+  Application.prototype.childrenComplete = function() {
+    var initMainView;
+    if (this["#main"] == null) {
+      throw "required element `#main` was not found, please check your layout";
+    }
+    initMainView = (function(_this) {
+      return function() {
+        var pkg, viewClass, viewEl, viewID, viewTitle;
+        viewClass = _this["#main"].$el.children().first().attr('data-controller');
+        pkg = viewClass != null ? ApiHeroUI.utils.getPackageClass(viewClass) : null;
+        if (pkg == null) {
+          pkg = ApiHeroUI.core.View;
+        }
+        viewEl = _this["#main"].$el.children().first();
+        _this["#main"].__children.splice(0, _this["#main"].__children.length, _this["#main"]["page-view"] = new pkg({
+          el: viewEl,
+          __parent: _this["#main"]
+        }));
+        viewID = viewEl.attr("data-viewid" || 'UNKOWN_ID');
+        viewTitle = viewEl.attr("data-title" || viewID);
+        if (viewID === 'UNKOWN_ID') {
+          console.log("WARNING: data-viewid was not set");
+        }
+        document.title = viewTitle;
+        return _this.trigger("view-initialized", viewID);
+      };
+    })(this);
+    return this.router.on('view-loaded', (function(_this) {
+      return function(data) {
+        _this["#main"].$el.html("").append(data);
+        initMainView();
+        return _this.delegateEvents();
+      };
+    })(this));
+  };
+
+  Application.prototype.init = function(o) {
+    var rootRoute, routeOpts;
+    _.extend(this.subviews, ApiHeroUI.core.Application.prototype.subviews);
+    routeOpts = {
+      pushState: true
+    };
+    if (o != null ? o.hasOwnProperty.rootRooute : void 0) {
+      routeOpts.root = o.rootRoute;
+    }
+    if ((rootRoute = this.$el.attr('data-root-route')) != null) {
+      routeOpts.root = rootRoute;
+    }
+    this.router = new this.Router;
+    return Backbone.history.start(routeOpts);
+  };
+
+  return Application;
+
+})(ApiHeroUI.core.View);
+
+ApiHeroUI.core.Application.prototype.subviews = {
+  "#main": ApiHeroUI.core.View
+};
+
+ApiHeroUI.core.Application.prototype.Router = ApiHeroUI.core.Routes = (function(superClass) {
+  extend(Routes, superClass);
+
+  function Routes() {
+    return Routes.__super__.constructor.apply(this, arguments);
+  }
+
+  Routes.prototype.routes = {
+    "*actions": "url"
+  };
+
+  Routes.prototype.url = function(route) {
+    return $.get("/" + route, (function(_this) {
+      return function(data, t, r) {
+        return _this.trigger('view-loaded', data);
+      };
+    })(this));
+  };
+
+  return Routes;
+
+})(Backbone.Router);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 ApiHeroUI.controls.Checkbox = (function(superClass) {
@@ -821,6 +1069,169 @@ ApiHeroUI.controls.Checkbox = (function(superClass) {
 })(Backbone.View);
 
 ApiHeroUI.controls.Checkbox.__template__ = "<span class=\"checkbox-container\">\n  <label for=\"{{id || ''}}\">{{label}}</label>\n  <input type=\"checkbox\" name=\"{{name}}\" id=\"{{id || ''}}\" value=\"off\"/>\n  <div class=\"checkbox-symbol {{classes || ''}}\"></div>\n</span>";var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ApiHeroUI.controls.DataLabel = (function(superClass) {
+  extend(DataLabel, superClass);
+
+  function DataLabel() {
+    return DataLabel.__super__.constructor.apply(this, arguments);
+  }
+
+  DataLabel.prototype.model = null;
+
+  DataLabel.prototype.defaultTitle = "Title";
+
+  DataLabel.prototype.subviews = {
+    '.datalabel-value': ApiHeroUI.core.View,
+    '.datalabel-title': ApiHeroUI.core.View
+  };
+
+  DataLabel.prototype.setOptions = function(opts) {
+    if (opts.defaultTitle) {
+      this.defaultTitle = opts.defaultTitle;
+      delete opts.defaultTitle;
+    }
+    this.model.set(opts);
+    return this;
+  };
+
+  DataLabel.prototype.getTitle = function() {
+    return this.model.get('title');
+  };
+
+  DataLabel.prototype.setTitle = function(v) {
+    this.model.set({
+      title: v,
+      validate: true
+    });
+    return this;
+  };
+
+  DataLabel.prototype.getValue = function() {
+    return this.model.get('value');
+  };
+
+  DataLabel.prototype.setValue = function(v) {
+    this.model.set({
+      value: (typeof this.__formatter === "function" ? this.__formatter(v) : void 0) || v,
+      validate: true
+    });
+    return this;
+  };
+
+  DataLabel.prototype.setText = function(v) {
+    return this.setValue(v);
+  };
+
+  DataLabel.prototype.init = function(o) {
+    return (this.model = new (Backbone.Model.extend({
+      defaults: {
+        title: this.defaultTitle || "",
+        value: ""
+      },
+      validate: function(o) {
+        var param, type, value;
+        for (param in o) {
+          value = o[param];
+          if ((type = typeof value) !== 'string') {
+            return param + " required to be string type was <" + type + ">";
+          }
+        }
+      }
+    }))).on('change', (function(_this) {
+      return function() {
+        _this['.datalabel-value'].setText(_this.model.get('value'));
+        return _this['.datalabel-title'].setText(_this.model.get('title'));
+      };
+    })(this));
+  };
+
+  return DataLabel;
+
+})(ApiHeroUI.core.View);
+
+$.fn.DataLabel = (function(_this) {
+  return function(opts) {
+    return new ApiHeroUI.controls.DataLabel({
+      el: _this
+    }, opts || {});
+  };
+})(this);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ApiHeroUI.controls.ListItem = (function(superClass) {
+  extend(ListItem, superClass);
+
+  function ListItem() {
+    return ListItem.__super__.constructor.apply(this, arguments);
+  }
+
+  ListItem.prototype.render = function() {
+    if (!this.template) {
+      if (this.model.attributes.hasOwnProperty('text')) {
+        return this.setText(this.model.attributes.text);
+      }
+    } else {
+      return ListItem.__super__.render.apply(this, arguments);
+    }
+  };
+
+  ListItem.prototype.init = function(o) {
+    if (this.model == null) {
+      this.model = new (Backbone.Model.extend({
+        defaults: {
+          text: ""
+        }
+      }));
+    }
+    return this.model.on('change', this.render, this);
+  };
+
+  return ListItem;
+
+})(Backbone.View);
+
+$.fn.ListItem = (function(_this) {
+  return function(opts) {
+    return new ApiHeroUI.controls.ListItem({
+      el: _this
+    }, opts || {});
+  };
+})(this);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ApiHeroUI.controls.List = (function(superClass) {
+  extend(List, superClass);
+
+  function List() {
+    return List.__super__.constructor.apply(this, arguments);
+  }
+
+  List.prototype.el = "ul";
+
+  List.prototype.subviews = {
+    "li": ApiHeroUI.controls.ListItem
+  };
+
+  List.prototype.init = function(o) {
+    if (this.collection == null) {
+      this.collection = new Backbone.Collection;
+    }
+    return this.collection.on('change', this.render, this);
+  };
+
+  return List;
+
+})(ApiHeroUI.core.View);
+
+$.fn.List = (function(_this) {
+  return function(opts) {
+    return new ApiHeroUI.controls.List({
+      el: _this
+    }, opts || {});
+  };
+})(this);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 ApiHeroUI.controls.Panel = (function(superClass) {
@@ -933,7 +1344,69 @@ ApiHeroUI.controls.Panel = (function(superClass) {
 
 })(ApiHeroUI.core.View);
 
-ApiHeroUI.controls.Panel.__template__ = "<div class=\"bbui-panel-container<%= minified ? ' minified' : ''%>\">\n  <div class=\"panel-header\">\n    <div class=\"panel-title-container\">\n      <h1 class=\"panel-title\"><%=title%></h1>\n    </div> \n  </div>\n  <div class=\"panel-content\">\n  </div>\n</div>";var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+ApiHeroUI.controls.Panel.__template__ = "<div class=\"bbui-panel-container<%= minified ? ' minified' : ''%>\">\n  <div class=\"panel-header\">\n    <div class=\"panel-title-container\">\n      <h1 class=\"panel-title\"><%=title%></h1>\n    </div> \n  </div>\n  <div class=\"panel-content\">\n  </div>\n</div>";'use strict';
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ApiHeroUI.Select = (function(superClass) {
+  extend(Select, superClass);
+
+  function Select() {
+    return Select.__super__.constructor.apply(this, arguments);
+  }
+
+  Select.prototype.events = {
+    "change": "changeHandler"
+  };
+
+  Select.prototype.changeHandler = function(evt) {
+    evt.preventDefault();
+    this.trigger('change', this.getValue());
+    return false;
+  };
+
+  Select.prototype.reset = function() {
+    _.each(this.$el.find('option'), (function(_this) {
+      return function(v, k) {
+        return $(v).attr('selected', false);
+      };
+    })(this));
+    return this;
+  };
+
+  Select.prototype.setOptions = function(opts) {
+    var opt;
+    this.reset();
+    if (opts.selected != null) {
+      if (((opt = this.$el.find("option[value=" + opts.selected + "]")) != null) && opt.length) {
+        opt.attr('selected', true);
+      }
+    }
+    return this;
+  };
+
+  Select.prototype.getValue = function() {
+    return this.$el.val();
+  };
+
+  Select.prototype.setValue = function(v) {
+    this.setOptions({
+      selected: v
+    });
+    return this;
+  };
+
+  return Select;
+
+})(ApiHeroUI.core.View);
+
+$.fn.Select = (function(_this) {
+  return function(opts) {
+    return new ApiHeroUI.controls.Select({
+      el: _this
+    }, opts || {});
+  };
+})(this);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 ApiHeroUI.controls.Slider = (function(superClass) {
@@ -1041,22 +1514,554 @@ ApiHeroUI.controls.Slider.__template__ = "<div class=\"bbui-slider <%=classes ||
       });
     });
   }
-});
+});var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ApiHeroUI.components.FormView = (function(superClass) {
+  extend(FormView, superClass);
+
+  function FormView() {
+    return FormView.__super__.constructor.apply(this, arguments);
+  }
+
+  FormView.prototype.events = {
+    "change input": function(evt) {
+      var t;
+      return this.model.set(((t = $(evt.target)).attr('name')).replace(/^reg_+/, ''), t.val(), {
+        validate: true
+      });
+    },
+    "click button[name=cancel]": function() {
+      this.model.clear();
+      this.$('input').val(null);
+      _.extend(this.model.attributes, _.clone(this.model.defaults));
+      return this.trigger('cancelled');
+    },
+    "click button[name=submit]": function() {
+      return this.model.save(null, {
+        success: (function(_this) {
+          return function(m, r, o) {
+            return _this.trigger('submit-success');
+          };
+        })(this),
+        error: (function(_this) {
+          return function() {
+            return _this.trigger('submit-failure', {
+              message: 'unable to complete form submission'
+            });
+          };
+        })(this)
+      });
+    }
+  };
+
+  FormView.prototype.setModel = function(modelClass) {
+    return this.model = new this.modelClass().on("change reset", ((function(_this) {
+      return function() {
+        return _this.trigger('changing');
+      };
+    })(this)), this).on('invalid', ((function(_this) {
+      return function(model, e) {
+        return _this.trigger('invalid', {
+          message: e
+        });
+      };
+    })(this)), this);
+  };
+
+  FormView.prototype.init = function(o) {
+    if (o.hasOwnProperty('modelClass')) {
+      this.modelClass = o.modelClass;
+    }
+    if (this.modelClass != null) {
+      return this.setModel(this.modelClass);
+    }
+  };
+
+  return FormView;
+
+})(ApiHeroUI.core.View);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ApiHeroUI.components.LoginFormView = (function(superClass) {
+  extend(LoginFormView, superClass);
+
+  function LoginFormView() {
+    return LoginFormView.__super__.constructor.apply(this, arguments);
+  }
+
+  LoginFormView.prototype.init = function(o) {
+    LoginFormView.__super__.init.call(this, o);
+    ({
+      formEvents: {
+        "click button[name=submit]": function() {
+          return this.model.login();
+        }
+      }
+    });
+    _.extend(this.events, formEvents);
+    return this.delegateEvents();
+  };
+
+  return LoginFormView;
+
+})(ApiHeroUI.components.FormView);ApiHeroUI.search.ResultsModel = (function() {
+  ResultsModel.prototype.nestedCollection = Backbone.Collection.extend({
+    model: Backbone.Model
+  });
+
+  function ResultsModel($scope) {
+    $scope.Model.extend({
+      defaults: {
+        paginate: {
+          current_page: 1,
+          total_pages: 0
+        },
+        results: {}
+      },
+      params: "",
+      uuid: "",
+      url: function() {
+        return "" + ($scope.getAPIUrl()) + this.params;
+      },
+      initialize: function(o) {
+        this.on('change', (function(_this) {
+          return function() {
+            return _this.attributes['results'] = _this.nestCollection('results', new _this.nestedCollection(_this.get('results')));
+          };
+        })(this));
+        return this.attributes['results'] = this.nestCollection('results', new this.nestedCollection(this.get('results')));
+      }
+    });
+  }
+
+  return ResultsModel;
+
+})();var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty,
+  slice = [].slice;
+
+ApiHeroUI.search.Collection = (function(superClass) {
+  extend(Collection, superClass);
+
+  function Collection() {
+    return Collection.__super__.constructor.apply(this, arguments);
+  }
+
+  Collection.prototype.model = ApiHeroUI.search.ResultsModel;
+
+  Collection.prototype.filter = null;
+
+  Collection.prototype.getLastResults = function() {
+    return this.at(this.models.length - 1);
+  };
+
+  Collection.prototype.getCurrentResults = function() {
+    var idx;
+    return this.at((idx = global.app.ViewHistory.currentIndex) >= 0 ? idx : 0);
+  };
+
+  Collection.prototype.getResultsByUUID = function(uuid) {
+    return _.findWhere(this.models, {
+      uuid: uuid
+    });
+  };
+
+  Collection.prototype.setFilter = function(filter) {
+    return this.filter = filter;
+  };
+
+  Collection.prototype.seed = function(seed_elements) {
+    var h;
+    this.models[0] = new this.model(seed_elements);
+    return this.models[0].uuid = (h = global.app.ViewHistory).getUUIDAt(h.currentIndex);
+  };
+
+  Collection.prototype.initialize = function(o) {
+    Collection.__super__.initialize.apply(this, arguments);
+    this.filter = new ApiHeroUI.search.Filter;
+    global.app.ViewHistory.on('navigate', (function(_this) {
+      return function(o) {
+        if (o.get('unique')) {
+          return _this.add(new _this.model());
+        }
+      };
+    })(this));
+    return this.on('add', (function(_this) {
+      return function() {
+        var args;
+        args = 1 <= arguments.length ? slice.call(arguments, 0) : [];
+        return args[0].fetch({
+          params: window.location.search
+        });
+      };
+    })(this));
+  };
+
+  return Collection;
+
+})(Backbone.Collection);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ApiHeroUI.search.FilterElement = (function(superClass) {
+  extend(FilterElement, superClass);
+
+  function FilterElement() {
+    return FilterElement.__super__.constructor.apply(this, arguments);
+  }
+
+  FilterElement.prototype.getName = function() {
+    return this.$el.attr('name');
+  };
+
+  FilterElement.prototype.getValue = function() {
+    return this.$el.val();
+  };
+
+  FilterElement.prototype.setValue = function(v) {
+    return this.$el.val(v);
+  };
+
+  FilterElement.prototype.valueOf = function() {
+    var o;
+    o = {};
+    o[this.getName()] = this.getValue();
+    return o;
+  };
+
+  FilterElement.prototype.init = function() {
+    return this.$el.on('change', ((function(_this) {
+      return function() {
+        return _this.trigger(_this.$el.valueOf());
+      };
+    })(this)), this);
+  };
+
+  return FilterElement;
+
+})(ApiHeroUI.core.View);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ApiHeroUI.search.Filter = (function(superClass) {
+  extend(Filter, superClass);
+
+  function Filter() {
+    return Filter.__super__.constructor.apply(this, arguments);
+  }
+
+  Filter.prototype.options = {
+    autoUpdate: true
+  };
+
+  Filter.prototype.changeHandler = function() {
+    var diffs;
+    if ((diffs = ApiHeroUI.utils.getDiffs(this.attributes, this.defaults)).length > 1) {
+      _.each(diffs, (function(_this) {
+        return function(v, k) {
+          if ((v != null) && v[0] === 'page') {
+            return diffs.splice(k, 1);
+          }
+        };
+      })(this));
+    }
+    return this.submit(diffs);
+  };
+
+  Filter.prototype.submit = function(query) {
+    return window.app.ViewHistory.navigate("" + (ApiHeroUI.utils.objectToQuery(query)));
+  };
+
+  Filter.prototype.addElement = function(el, opts) {
+    var fFunc;
+    _.extend(this.attributes, el.valueOf());
+    fFunc = (function(_this) {
+      return function(data) {
+        return _this.filter.set(data);
+      };
+    })(this);
+    el.on('change', fFunc, this);
+    el.stopFiltering = (function(_this) {
+      return function() {
+        return el.off('change', fFunc);
+      };
+    })(this);
+    return this;
+  };
+
+  Filter.prototype.removeElement = function(el, opts) {
+    el.stopFiltering();
+    delete el.stopFiltering;
+    return this;
+  };
+
+  Filter.prototype.initialize = function(o) {
+    if (o == null) {
+      o = {};
+    }
+    _.extend(this.options, o);
+    _.extend(this.attributes, ApiHeroUI.utils.queryToObject(window.location.search));
+    if (this.options.autoUpdate) {
+      return this.on('change', this.changeHandler, this);
+    }
+  };
+
+  return Filter;
+
+})(Backbone.Model);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ApiHeroUI.search.GeoFilter = (function(superClass) {
+  extend(GeoFilter, superClass);
+
+  function GeoFilter() {
+    return GeoFilter.__super__.constructor.apply(this, arguments);
+  }
+
+  GeoFilter.prototype.getBounds = function() {
+    var createMarker, llNE, llSW;
+    createMarker = function(llSW, llNE) {
+      var lat, lng;
+      lat = ApiHeroUI.utils.decodeLatLng(llSW);
+      lng = ApiHeroUI.utils.decodeLatLng(llNE);
+      return new google.maps.LatLngBounds(lat, lng);
+    };
+    if (((llNE = this.attributes.latLngNe) != null) && ((llSW = this.attributes.latLngSw) != null)) {
+      return createMarker(llSW, llNE);
+    } else {
+      return null;
+    }
+  };
+
+  GeoFilter.prototype.changeHandler = function() {
+    var bounds;
+    if ((bounds = this.getBounds()) != null) {
+      this.attributes.near = null;
+      this.attributes.search_radius = MapView.getBoundsRad(bounds);
+      return GeoFilter.__super__.changeHandler.apply(this, arguments);
+    }
+  };
+
+  GeoFilter.prototype.initialize = function(o) {
+    if (o == null) {
+      o = {};
+    }
+    GeoFilter.__super__.initialize.call(this, o);
+    return this.on('change', this.changeHandler, this);
+  };
+
+  return GeoFilter;
+
+})(ApiHeroUI.search.Filter);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ApiHeroUI.search.HistoryItem = (function(superClass) {
+  extend(HistoryItem, superClass);
+
+  function HistoryItem() {
+    return HistoryItem.__super__.constructor.apply(this, arguments);
+  }
+
+  HistoryItem.prototype.defaults = {
+    search: "",
+    unique: true,
+    uuid: "",
+    o_uuid: null
+  };
+
+  return HistoryItem;
+
+})(Backbone.Model);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ApiHeroUI.search.History = (function(superClass) {
+  extend(History, superClass);
+
+  function History() {
+    return History.__super__.constructor.apply(this, arguments);
+  }
+
+  History.prototype.model = ApiHeroUI.search.HistoryItem;
+
+  History.prototype.currentParams = window.location.search;
+
+  History.prototype.route = "/search";
+
+  History.prototype.currentIndex = -1;
+
+  History.prototype.__popCount = -1;
+
+  History.prototype.getLocation = function() {
+    return window.location.search.replace('?', '');
+  };
+
+  History.prototype.getParams = function(search) {
+    return decodeURIComponent(ApiHeroUI.utils.objectToQuery(search));
+  };
+
+  History.prototype.uuidExists = function(params) {
+    var len, u;
+    if ((len = (u = this.where({
+      search: params
+    })).length)) {
+      return u[0].get('uuid');
+    } else {
+      return null;
+    }
+  };
+
+  History.prototype.getUUIDAt = function(idx) {
+    var itm;
+    if ((itm = this.at(idx)) != null) {
+      return itm.get('uuid');
+    } else {
+      return null;
+    }
+  };
+
+  History.prototype.navigate = function(search) {
+    var original_uuid, searchHistoryId;
+    search = ApiHeroUI.utils.queryToObject(search);
+    search['s_id'] = searchHistoryId = ApiHeroUI.utils.mkGUID();
+    window.history.pushState(null, null, (this.route + "?" + (this.currentParams = this.getParams(search))).replace('?&', '?'));
+    original_uuid = this.uuidExists(this.currentParams);
+    return this.add(new this.model({
+      search: this.currentParams,
+      uuid: searchHistoryId,
+      unique: original_uuid === null,
+      o_uuid: original_uuid
+    }));
+  };
+
+  History.prototype.add = function(models, opts) {
+    if (((this.models.length - 1) - this.currentIndex) > 0) {
+      this.remove(this.slice(this.currentIndex, this.models.length - 1));
+    }
+    return History.__super__.add.call(this, (!_.isArray(models) ? models = [models] : models), opts);
+  };
+
+  History.prototype.getSearchIndex = function(search) {
+    return (this.pluck('search')).lastIndexOf(search.replace('?', ''));
+  };
+
+  History.prototype.initialize = function(o) {
+    var m, search_d;
+    if (o == null) {
+      o = {};
+    }
+    if (o.hasOwnProperty('route')) {
+      this.route = o.route;
+    }
+    this.on('add', (function(_this) {
+      return function(models, object, options) {
+        _this.currentIndex = _this.models.length - 1;
+        return _.each((!_.isArray(models) ? models = [models] : models), function(v, k) {
+          if (v.get('unique')) {
+            return _this.trigger('navigate', v);
+          }
+        });
+      };
+    })(this));
+    this.on('remove', (function(_this) {
+      return function() {
+        return _this.currentIndex = _this.models.length - 1;
+      };
+    })(this));
+    $(window).on('popstate', (function(_this) {
+      return function(evt) {
+        var idx, p;
+        if (((_this.__popCount = _this.__popCount + 1) + _this.currentIndex) === 0) {
+          return;
+        }
+        if ((idx = _this.getSearchIndex(_this.currentParams = _this.getLocation())) >= 0) {
+          _this.currentIndex = idx;
+        } else {
+          p = ApiHeroUI.utils.queryToObject(_this.currentParams);
+          _this.unshift(new _this.model({
+            search: _this.currentParams,
+            uuid: p.s_id || null,
+            unique: true,
+            o_uuid: null
+          }));
+          _this.currentIndex = _this.getSearchIndex(_this.currentParams);
+        }
+        return _this.trigger('popstate', _this.at(_this.currentIndex));
+      };
+    })(this));
+    search_d = (m = window.location.search.match(/s_id=([a-z0-9\-]{12})/)) ? m[1] : ApiHeroUI.utils.mkGUID();
+    this.models.push(new this.model({
+      search: (this.currentParams = this.getLocation().split('&s_id').shift()),
+      uuid: search_d
+    }));
+    return this.currentIndex = 0;
+  };
+
+  return History;
+
+})(Backbone.Collection);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+ApiHeroUI.search.View = (function(superClass) {
+  extend(View, superClass);
+
+  function View() {
+    return View.__super__.constructor.apply(this, arguments);
+  }
+
+  View.prototype.events = {
+    "click .search-submit": "submit"
+  };
+
+  View.prototype.subviews = {
+    '.search-filter': ApiHeroUI.search.FilterElement,
+    'ul.search-results': ApiHeroUI.controls.List
+  };
+
+  View.prototype.childrenComplete = function() {
+    _.each(this['.search-filter'], (function(_this) {
+      return function(filter) {
+        return _this.collection.filter.addElement(filter);
+      };
+    })(this));
+    if (this['ul.search-results'] == null) {
+      throw "element ul.search-results was not a child of search view";
+    }
+    return this['ul.search-results'].setCollection(this.collection);
+  };
+
+  View.prototype.submit = function() {
+    return this.collection.filter.submit(this.collection.filter.attributes);
+  };
+
+  View.prototype.init = function() {
+    var base;
+    if ((base = global.app).ViewHistory == null) {
+      base.ViewHistory = new ApiHeroUI.search.History;
+    }
+    return this.collection != null ? this.collection : this.collection = new ApiHeroUI.search.Collection;
+  };
+
+  return View;
+
+})(ApiHeroUI.core.View);
 /*
 (=) require ./index
 (=) require_tree ./interactions
 (=) require_tree ./core
 (=) require_tree ./controls
 (=) require_tree ./plugins
+(=) require_tree ./components
+(=) require_tree ./models
+(=) require_tree ./search
  */
 ;
-if (!(ApiHeroUI && typeof ApiHeroUI === 'object')) {
+if (!((typeof ApiHeroUI !== "undefined" && ApiHeroUI !== null) && typeof ApiHeroUI === 'object')) {
   global.ApiHeroUI = {};
 }
 
 global.ApiHeroUI.Bootstrap = {
   controls: {},
-  components: {}
+  components: {},
+  search: {}
 };var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 

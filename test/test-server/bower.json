@@ -10,7 +10,8 @@
   "dependencies": {
   	"bootstrap":"^3.3.5",
   	"bootstrap3-typeahead":"^3.1.1",
-    "apihero-ui":"git+https://github.com/vancarney/backbone-ui#apihero-ui"
+    "apihero-ui":"git+https://github.com/vancarney/backbone-ui#apihero-ui",
+    "rikki-tikki-client": "git+https://github.com/vancarney/rikki-tikki-client.git"
   },
   "devDependencies": {
 

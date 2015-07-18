@@ -5,6 +5,8 @@ unless isXHR
       meta(charset="utf-8")
       meta(http-equiv="X-UA-Compatible", content="IE=edge,chrome=1")
       title #{title}
+      script.
+        var DEBUG = true;
       each metatag in locals.meta
         meta(name=metatag.name, content=metatag.content)
       //link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Open+Sans:700,300,800,400")

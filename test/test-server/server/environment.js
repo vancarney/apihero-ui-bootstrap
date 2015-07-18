@@ -9,12 +9,11 @@ Mincer.logger.use(console);
 var environment = module.exports = new Mincer.Environment('./');
 
 environment.appendPath('bower_components');
-//environment.appendPath('./vendor/javascript');
 environment.appendPath('src/coffee');
 environment.appendPath('src/css');
 environment.appendPath('src/less');
-
-
+environment.appendPath('../../');
+environment.appendPath('../../');
 
 environment.registerHelper('asset_path', function (logicalPath) {
   var asset = environment.findAsset(logicalPath);
