@@ -1,4 +1,4 @@
-class ApiHeroUI.Bootstrap.controls.TypeAhead extends ApiHeroUI.Bootstrap.core.View
+class ApiHeroUI.Bootstrap.controls.TypeAhead extends ApiHeroUI.Bootstrap.View
   lookup:->
     @$el.typeahead().lookup()
     @

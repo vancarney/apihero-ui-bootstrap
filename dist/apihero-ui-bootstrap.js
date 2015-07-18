@@ -2065,6 +2065,46 @@ global.ApiHeroUI.Bootstrap = {
 };var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
+ApiHeroUI.Bootstrap.View = (function(superClass) {
+  extend(View, superClass);
+
+  function View() {
+    return View.__super__.constructor.apply(this, arguments);
+  }
+
+  View.prototype.show = function() {
+    this.$el.addClass('show').removeCLass('hidden');
+    return this;
+  };
+
+  View.prototype.hide = function() {
+    this.$el.addClass('hidden').removeCLass('show');
+    return this;
+  };
+
+  View.prototype.setTooltip = function(text, opts) {
+    if (opts == null) {
+      opts = {};
+    }
+    this.$el.toolTip(_.extend(opts, {
+      title: text
+    }));
+    return this;
+  };
+
+  View.prototype.pullLeft = function() {
+    return this.$el.addClass('pull-left');
+  };
+
+  View.prototype.pullRight = function() {
+    return this.$el.addClass('pull-right');
+  };
+
+  return View;
+
+})(ApiHeroUI.core.View);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
 ApiHeroUI.Bootstrap.components.FormView = (function(superClass) {
   extend(FormView, superClass);
 
@@ -2374,7 +2414,7 @@ ApiHeroUI.Bootstrap.controls.TypeAhead = (function(superClass) {
 
   return TypeAhead;
 
-})(ApiHeroUI.Bootstrap.core.View);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+})(ApiHeroUI.Bootstrap.View);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 ApiHeroUI.Bootstrap.search.FilterElement = (function(superClass) {
@@ -2403,47 +2443,7 @@ ApiHeroUI.Bootstrap.search.View = (function(superClass) {
 
   return View;
 
-})(ApiHeroUI.search.View);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
-
-ApiHeroUI.Bootstrap.View = (function(superClass) {
-  extend(View, superClass);
-
-  function View() {
-    return View.__super__.constructor.apply(this, arguments);
-  }
-
-  View.prototype.show = function() {
-    this.$el.addClass('show').removeCLass('hidden');
-    return this;
-  };
-
-  View.prototype.hide = function() {
-    this.$el.addClass('hidden').removeCLass('show');
-    return this;
-  };
-
-  View.prototype.setTooltip = function(text, opts) {
-    if (opts == null) {
-      opts = {};
-    }
-    this.$el.toolTip(_.extend(opts, {
-      title: text
-    }));
-    return this;
-  };
-
-  View.prototype.pullLeft = function() {
-    return this.$el.addClass('pull-left');
-  };
-
-  View.prototype.pullRight = function() {
-    return this.$el.addClass('pull-right');
-  };
-
-  return View;
-
-})(ApiHeroUI.core.View);
+})(ApiHeroUI.search.View);
 /*
   use mincer compiler directives below to include dependencies
 (=) require bootstrap/js/tooltip
