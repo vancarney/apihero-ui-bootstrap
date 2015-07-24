@@ -4909,110 +4909,102 @@ ApiHeroUI.Bootstrap.controls.TypeAhead = (function(superClass) {
     if (ds == null) {
       ds = null;
     }
-    TypeAhead.__super__.init.apply(this, arguments);
-    _opts = o;
+    _opts = o.opts || {};
     _ds = ds;
     this.setDataSource = (function(_this) {
       return function(ds) {
+        if (ds == null) {
+          ds = {};
+        }
         _ds = _.pick(ds, ['source', 'async', 'name', 'limit', 'display', 'templates']);
         _this.$el.typeahead(_opts, _ds);
         return _this;
       };
     })(this);
-    this.getDataSourc = (function(_this) {
+    this.getDataSource = (function(_this) {
       return function() {
         return _ds;
       };
     })(this);
-    (this.setOptions = (function(_this) {
+    this.setOptions = (function(_this) {
       return function(opts, ds) {
-        _extend(_opts, _.pick(opts, ['highlight', 'hint', 'minLength', 'classNames']));
+        var e;
+        if (opts == null) {
+          opts = {};
+        }
+        _.extend(_opts, _.pick(opts, ['highlight', 'hint', 'minLength', 'classNames']));
         if (ds != null) {
           _this.setDataSource(ds);
         } else {
-          _this.$el.typeahead(_opts, _ds);
+          try {
+            _this.$el.typeahead(_opts || {}, _ds || {});
+          } catch (_error) {
+            e = _error;
+            console.log(e);
+          }
         }
         return _this;
       };
-    })(this))(o, ds);
+    })(this);
+    if (this.dataSource) {
+      this.setOptions(_opts, this.dataSource);
+    }
     this.getOptions = (function(_this) {
       return function() {
         return _opts;
       };
     })(this);
-    this.$el.bind({
-      typeahead: active
-    }, (function(_this) {
+    this.$el.bind('typeahead:active', (function(_this) {
       return function(evt, d) {
         return _this.trigger('active', evt, d);
       };
     })(this));
-    this.$el.bind({
-      typeahead: idle
-    }, (function(_this) {
+    this.$el.bind('typeahead:idle', (function(_this) {
       return function(evt, d) {
         return _this.trigger('idle', evt, d);
       };
     })(this));
-    this.$el.bind({
-      typeahead: open
-    }, (function(_this) {
+    this.$el.bind('typeahead:open', (function(_this) {
       return function(evt, d) {
         return _this.trigger('open', evt, d);
       };
     })(this));
-    this.$el.bind({
-      typeahead: close
-    }, (function(_this) {
+    this.$el.bind('typeahead:close', (function(_this) {
       return function(evt, d) {
         return _this.trigger('close', evt, d);
       };
     })(this));
-    this.$el.bind({
-      typeahead: change
-    }, (function(_this) {
+    this.$el.bind('typeahead:change', (function(_this) {
       return function(evt, d) {
         return _this.trigger('change', evt, d);
       };
     })(this));
-    this.$el.bind({
-      typeahead: render
-    }, (function(_this) {
+    this.$el.bind('typeahead:render', (function(_this) {
       return function(evt, d) {
         return _this.trigger('render', evt, d);
       };
     })(this));
-    this.$el.bind({
-      typeahead: autocomplete
-    }, (function(_this) {
+    this.$el.bind('typeahead:autocomplete', (function(_this) {
       return function(evt, d) {
         return _this.trigger('autocomplete', evt, d);
       };
     })(this));
-    this.$el.bind({
-      typeahead: cursorchange
-    }, (function(_this) {
+    this.$el.bind('typeahead:cursorchange', (function(_this) {
       return function(evt, d) {
         return _this.trigger('cursorchange', evt, d);
       };
     })(this));
-    this.$el.bind({
-      typeahead: asyncrequest
-    }, (function(_this) {
+    this.$el.bind('typeahead:asyncrequest', (function(_this) {
       return function(evt, d) {
         return _this.trigger('asyncrequest', evt, d);
       };
     })(this));
-    this.$el.bind({
-      typeahead: asynccancel
-    }, (function(_this) {
+    this.$el.bind('typeahead:asynccancel', (function(_this) {
       return function(evt, d) {
         return _this.trigger('asynccancel', evt, d);
       };
     })(this));
-    return this.$el.bind({
-      typeahead: asyncreceive
-    }, (function(_this) {
+    return this.$el.bind('typeahead:asyncreceive', (function(_this) {
       return function(evt, d) {
         return _this.trigger('asyncreceive', evt, d);
       };
