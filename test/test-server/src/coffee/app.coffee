@@ -1,12 +1,12 @@
-class yungcloud.AppView extends ApiHeroUI.core.Application
+class test.AppView extends ApiHeroUI.core.Application
   subviews:
     "nav":ApiHeroUI.core.View
-    "#connect.modal":yungcloud.components.LoginModal
+    "#connect.modal":test.components.LoginModal
 (( global, $ ) ->
   $(document).bind (if global.Util.isPhonegap() then 'deviceready' else 'ready'), =>
-    window.app    = new yungcloud.AppView
-    auth          = Yungcloud.Auth.getInstance()
-    @router       = new Yungcloud.Router
+    window.app    = new test.AppView
+    auth          = Test.Auth.getInstance()
+    @router       = new Test.Router
     @registerUser = auth.registerUser
     @login        = auth.login
     @getUser      = auth.getUser
