@@ -4580,9 +4580,9 @@ ApiHeroUI.Bootstrap.components.FormView = (function(superClass) {
       };
     })(this)), this);
     this.on('invalid', ((function(_this) {
-      return function(model, e) {
+      return function(model) {
         var ref;
-        return (ref = _this.alertDelegate) != null ? ref.setMessage(e, 'danger') : void 0;
+        return (ref = _this.alertDelegate) != null ? ref.setMessage(model.message, 'danger') : void 0;
       };
     })(this)), this);
     this.on('submit-failure', ((function(_this) {
@@ -4633,49 +4633,6 @@ ApiHeroUI.Bootstrap.components.LoginForm = (function(superClass) {
   return LoginForm;
 
 })(ApiHeroUI.Bootstrap.components.FormView);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
-
-ApiHeroUI.Bootstrap.components.Typeahead = (function(superClass) {
-  extend(Typeahead, superClass);
-
-  function Typeahead() {
-    return Typeahead.__super__.constructor.apply(this, arguments);
-  }
-
-  Typeahead.prototype.el = '.typeahead';
-
-  Typeahead.prototype.setCollection = function(collection) {
-    this.collection = typeof collection !== 'function' ? collection : new collection;
-    if (!this.collection) {
-      return;
-    }
-    this.collection.on('reset', (function(_this) {
-      return function() {
-        var ds;
-        ds = _.map(_this.collection.models, function(m) {
-          return m.valueOf();
-        });
-        return _this.$el.typeahead({
-          source: ds,
-          header: "<div class='col-xs-12'><a href='#'>Click Here to see All Results</a></div>"
-        });
-      };
-    })(this));
-    return this.collection.fetch({
-      reset: true
-    });
-  };
-
-  Typeahead.prototype.init = function(o) {
-    if (o == null) {
-      o = {};
-    }
-    return Typeahead.__super__.init(o);
-  };
-
-  return Typeahead;
-
-})(ApiHeroUI.Bootstrap.View);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
 ApiHeroUI.Bootstrap.controls.AlertView = (function(superClass) {
@@ -4877,6 +4834,8 @@ ApiHeroUI.Bootstrap.controls.TypeAhead = (function(superClass) {
 
   TypeAhead.prototype.el = '.typeahead';
 
+  TypeAhead.prototype.displayKey = null;
+
   TypeAhead.prototype.close = function() {
     this.$el.typeahead('close');
     return this;
@@ -4975,6 +4934,11 @@ ApiHeroUI.Bootstrap.controls.TypeAhead = (function(superClass) {
       };
     })(this));
     this.$el.bind('typeahead:change', (function(_this) {
+      return function(evt, d) {
+        return _this.trigger('change', evt, d);
+      };
+    })(this));
+    this.$el.bind('typeahead:select', (function(_this) {
       return function(evt, d) {
         return _this.trigger('change', evt, d);
       };

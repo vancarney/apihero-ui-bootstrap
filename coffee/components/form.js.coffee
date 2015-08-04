@@ -6,6 +6,6 @@ class ApiHeroUI.Bootstrap.components.FormView extends ApiHeroUI.components.FormV
     FormView.__super__.init.call @, o
     @alertDelegate = o.alertDelegate if o.hasOwnProperty 'alertDelegate'
     @on "changing", (=> @alertDelegate?.reset() ), @
-    @on 'invalid', ((model, e)=> @alertDelegate?.setMessage e, 'danger'), @
+    @on 'invalid', ((model)=> @alertDelegate?.setMessage model.message, 'danger'), @
     @on 'submit-failure', ((e)=> @alertDelegate?.setMessage @failureMessage, 'danger'), @
     @on 'submit-success', (=> @alertDelegate?.setMessage @successMessage, 'success'), @

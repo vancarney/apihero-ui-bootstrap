@@ -3,6 +3,7 @@
 # author: Van Carney <carney.van@gmail.com>
 class ApiHeroUI.Bootstrap.controls.TypeAhead extends ApiHeroUI.Bootstrap.View
   el:'.typeahead'
+  displayKey:null
   close:->
     @$el.typeahead 'close'
     @
@@ -50,6 +51,7 @@ class ApiHeroUI.Bootstrap.controls.TypeAhead extends ApiHeroUI.Bootstrap.View
     @$el.bind 'typeahead:open', (evt,d)=> @trigger 'open', evt, d
     @$el.bind 'typeahead:close', (evt,d)=> @trigger 'close', evt, d
     @$el.bind 'typeahead:change', (evt,d)=> @trigger 'change', evt, d
+    @$el.bind 'typeahead:select', (evt,d)=> @trigger 'change', evt, d
     @$el.bind 'typeahead:render', (evt,d)=> @trigger 'render', evt, d
     @$el.bind 'typeahead:autocomplete', (evt,d)=> @trigger 'autocomplete', evt, d
     @$el.bind 'typeahead:cursorchange', (evt,d)=> @trigger 'cursorchange', evt, d
