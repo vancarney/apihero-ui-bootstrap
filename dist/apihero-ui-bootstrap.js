@@ -4752,12 +4752,14 @@ ApiHeroUI.Bootstrap.controls.Modal = (function(superClass) {
   };
 
   Modal.prototype.init = function(o) {
+    var opts;
     if (o == null) {
-      o = {
-        show: false
-      };
+      o = {};
     }
-    return this.$el.modal(_.pick(o, ['backdrop', 'keyboard', 'show', 'remote']));
+    opts = _.extend({
+      show: false
+    }, o.options || {});
+    return this.$el.modal(_.pick(opts, ['backdrop', 'keyboard', 'show', 'remote']));
   };
 
   return Modal;

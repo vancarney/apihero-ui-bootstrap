@@ -29,6 +29,8 @@ class ApiHeroUI.Bootstrap.controls.Modal extends ApiHeroUI.core.View
   # convenience accessor method to `handleUpdate` on Modal
   handleUpdate:->
     @$el.modal 'handleUpdate'
-  init:(o={show:false})->
+  init:(o={})->
+    # supplies default options if none passed
+    opts = _.extend {show:false}, o.options || {}
     # sets modal options if any passed
-    @$el.modal _.pick o, ['backdrop','keyboard','show','remote']
+    @$el.modal _.pick opts, ['backdrop','keyboard','show','remote']
