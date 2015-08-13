@@ -4626,8 +4626,7 @@ ApiHeroUI.Bootstrap.components.LoginForm = (function(superClass) {
         }
       }
     };
-    _.extend(this.events, fieldHandlers);
-    return this.delegateEvents();
+    return this.events = _.extend({}, _.clone(this.events), fieldHandlers);
   };
 
   return LoginForm;
