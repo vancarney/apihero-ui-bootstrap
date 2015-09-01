@@ -4766,6 +4766,41 @@ ApiHeroUI.Bootstrap.controls.Modal = (function(superClass) {
 })(ApiHeroUI.core.View);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
+ApiHeroUI.Bootstrap.controls.Picklist = (function(superClass) {
+  extend(Picklist, superClass);
+
+  function Picklist() {
+    return Picklist.__super__.constructor.apply(this, arguments);
+  }
+
+  Picklist.prototype.events = {
+    "click .list-group-item": function(evt) {
+      this.__selectedValue = (this.__selectedEl = this.$(evt.target).closest('.list-group-item')).attr('data-value');
+      return this.trigger('change', this.getSelected());
+    }
+  };
+
+  Picklist.prototype.getSelected = function() {
+    var o;
+    return o = {
+      el: this.__selectedElement,
+      val: this.__selectedValue
+    };
+  };
+
+  Picklist.prototype.value = function() {
+    return this.getSelected().val;
+  };
+
+  Picklist.prototype.valueOf = function() {
+    return this.getSelected();
+  };
+
+  return Picklist;
+
+})(ApiHeroUI.core.View);var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
 ApiHeroUI.Bootstrap.Tooltip = (function(superClass) {
   extend(Tooltip, superClass);
 

@@ -6717,6 +6717,12 @@ button.close {
 .tt-menu {
   background-color: #FFF;
 }
+.picklist {
+  min-height: 80px;
+  height: inherit;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
 /*
  * use mincer compiler directives below to include dependencies
  *(=) require build
