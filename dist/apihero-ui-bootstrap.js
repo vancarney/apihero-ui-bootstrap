@@ -4783,7 +4783,7 @@ ApiHeroUI.Bootstrap.controls.Picklist = (function(superClass) {
   Picklist.prototype.getSelected = function() {
     var o;
     return o = {
-      el: this.__selectedElement,
+      el: this.__selectedEl,
       val: this.__selectedValue
     };
   };

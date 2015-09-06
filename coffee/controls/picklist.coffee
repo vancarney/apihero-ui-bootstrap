@@ -7,7 +7,7 @@ class ApiHeroUI.Bootstrap.controls.Picklist extends ApiHeroUI.core.View
       @trigger 'change', @getSelected()
   getSelected: ->
     o = 
-      el: @__selectedElement
+      el: @__selectedEl
       val: @__selectedValue
   value: ->
     @getSelected().val
